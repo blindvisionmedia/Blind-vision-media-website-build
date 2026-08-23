@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://blindvision.media/schemas/review-report.schema.json",
+  "title": "Blind Vision Review Report",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["review_type", "scope", "verdict", "findings"],
+  "properties": {
+    "review_type": { "type": "string", "minLength": 1 },
+    "scope": { "type": "string", "minLength": 1 },
+    "verdict": {
+      "type": "string",
+      "enum": ["PASS", "PASS_WITH_CONDITIONS", "BLOCK", "READY", "READY_WITH_CONDITIONS", "BLOCKED"]
+    },
+    "findings": {
+      "type": "array",
+      "items": { "type": "object" }
+    },
+    "reviewer_role": { "type": "string" },
+    "commit_sha": { "type": "string" },
+    "pull_request": { "type": ["string", "null"] },
+    "checks_executed": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "checks_not_executed": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "notes": { "type": "string" }
+  }
+}
