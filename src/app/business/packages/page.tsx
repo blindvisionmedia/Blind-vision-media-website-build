@@ -1,0 +1,2 @@
+import { PublicPage, Panels, BVForm } from '@/components/PageBlocks';
+export default function Page(){return <PublicPage title='BUSINESS PACKAGES' kicker='ENGAGEMENT TYPES' text='Project, ongoing and partnership structures controlled by admin.'><Panels items={[{title:'Project',body:'One-off campaign, shoot or content build.'},{title:'Ongoing',body:'Recurring creative/content relationship.'},{title:'Partnership',body:'Broader creative relationship across campaigns, production and strategy.'}]}/></PublicPage>}

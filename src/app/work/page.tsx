@@ -1,0 +1,2 @@
+import { PublicPage, Panels, BVForm } from '@/components/PageBlocks';
+export default function Page(){return <PublicPage title='WORK / PORTFOLIO' kicker='PROJECTS' text='A combined editorial portfolio across music, video, photography, business, campaigns and events.'><Panels items={[{title:'Filtering',body:'All, music, video, photography, business, campaigns and events.'},{title:'Editorial Layout',body:'Large project imagery and asymmetric layouts instead of generic cards.'},{title:'Detail Pages',body:'Projects can open into project or case-study pages.'}]}/></PublicPage>}
