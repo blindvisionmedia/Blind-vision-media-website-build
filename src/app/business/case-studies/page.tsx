@@ -1,0 +1,2 @@
+import { PublicPage, Panels, BVForm } from '@/components/PageBlocks';
+export default function Page(){return <PublicPage title='CASE STUDIES' kicker='COMMERCIAL PROOF' text='Client, problem, insight, execution, deliverables and results.'><Panels items={[{title:'Structure',body:'Problem → Insight → Execution → Deliverables → Results.'},{title:'Media',body:'Photography, video, charts and written explanation.'},{title:'Metrics',body:'Reach, engagement, leads, views, traffic, followers, conversion and revenue where available.'}]}/></PublicPage>}

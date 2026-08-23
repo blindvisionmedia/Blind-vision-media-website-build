@@ -1,0 +1,7 @@
+import { Nav, Footer } from './Nav';
+
+export function PublicPage({ title, kicker, text, children }: { title:string; kicker:string; text:string; children:React.ReactNode }){
+  return <><Nav/><main className="page"><section className="pageTitle"><p className="kicker">{kicker}</p><h1>{title}</h1><p>{text}</p></section>{children}</main><Footer/></>
+}
+export function Panels({items}:{items:{title:string;body:string;list?:string[]}[]}){return <section className="contentGrid">{items.map(item=><article className="contentPanel" key={item.title}><h3>{item.title}</h3><p>{item.body}</p>{item.list&&<ul>{item.list.map(x=><li key={x}>{x}</li>)}</ul>}</article>)}</section>}
+export function BVForm({type}:{type:'studio'|'business'|'contact'}){return <section className="contentGrid"><article className="contentPanel" style={{gridColumn:'1/-1'}}><h3>{type==='studio'?'Book a session':type==='business'?'Request consultation':'Contact Blind Vision'}</h3><form className="form"><input placeholder="Name"/><input placeholder="Email"/><input placeholder="Phone"/>{type==='business'&&<input placeholder="Business name"/>}<select><option>{type==='studio'?'Choose service':'Enquiry type'}</option><option>Recording</option><option>Photography</option><option>Video</option><option>Campaign</option><option>Branding</option><option>Other</option></select><textarea placeholder="Tell us what you need" rows={6}/><button className="btn" type="button">Submit request</button></form></article></section>}

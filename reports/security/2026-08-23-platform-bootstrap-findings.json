@@ -1,0 +1,127 @@
+[
+  {
+    "id": "SEC-001",
+    "title": "Portal and admin routes are not authenticated",
+    "severity": "high",
+    "category": "Authentication / Authorization",
+    "evidence": [
+      {
+        "type": "file",
+        "reference": "src/middleware.ts",
+        "detail": "The route matcher only adds X-Robots-Tag and returns NextResponse.next(); it does not validate a session or role."
+      },
+      {
+        "type": "file",
+        "reference": "src/app/login/page.tsx",
+        "detail": "The scaffold exposes demo links that navigate directly to artist, business and admin routes."
+      }
+    ],
+    "affected": ["/portal/artist/*", "/portal/business/*", "/admin/*"],
+    "scenario": "A visitor can request a protected route directly because the current scaffold has no authoritative session or role guard around those route trees.",
+    "impact": "Private portal and administrative UI would be reachable before real authorization is added. Any future data calls added to those pages could inherit the unsafe access pattern.",
+    "recommendation": "Add Supabase SSR session handling and authoritative server-side role guards at protected route layouts/actions. Keep proxy logic limited to session refresh/optimistic routing rather than treating it as the sole authorization control.",
+    "validation": "Verify anonymous requests redirect to login, wrong-role requests are denied, correct-role requests succeed, and admin routes require an admin profile. Add automated negative tests.",
+    "status": "open",
+    "issue": "#2"
+  },
+  {
+    "id": "SEC-002",
+    "title": "RLS helper functions are self-referential and project membership is incomplete",
+    "severity": "medium",
+    "category": "Database Authorization / RLS",
+    "evidence": [
+      {
+        "type": "file",
+        "reference": "supabase/migrations/001_initial_platform.sql:281-320",
+        "detail": "is_admin() reads profiles while profiles policies call is_admin(); is_project_member() reads project_members after RLS is enabled, but project_members has no select policy."
+      }
+    ],
+    "affected": ["profiles", "project_members", "projects", "files", "feedback", "approvals"],
+    "scenario": "RLS evaluation can recurse or fail to see membership rows, causing authorization checks to error or deny legitimate access. Developers may then be tempted to bypass RLS with privileged server credentials.",
+    "impact": "Core tenant authorization is unreliable and the portal cannot safely depend on it.",
+    "recommendation": "Move RLS helper checks into a non-exposed private schema using carefully scoped SECURITY DEFINER functions with an empty search_path; add explicit project_members policies and least-privilege function execution grants.",
+    "validation": "Run database tests for artist/business/admin membership and verify no recursive-policy errors occur and cross-project rows remain invisible.",
+    "status": "open",
+    "issue": "#2"
+  },
+  {
+    "id": "SEC-003",
+    "title": "Business request insert policy does not verify business ownership",
+    "severity": "high",
+    "category": "Broken Object-Level Authorization",
+    "evidence": [
+      {
+        "type": "file",
+        "reference": "supabase/migrations/001_initial_platform.sql:318-319",
+        "detail": "The insert policy checks created_by = auth.uid() but does not require the submitted business_id to belong to that user."
+      }
+    ],
+    "affected": ["requests"],
+    "scenario": "An authenticated business user could submit a request associated with a different business identifier while still satisfying created_by = auth.uid().",
+    "impact": "Cross-tenant data integrity and workflow isolation can be violated.",
+    "recommendation": "Require business_id ownership in the insert WITH CHECK expression and test cross-tenant IDs explicitly.",
+    "validation": "A request for the caller's own business succeeds; the same insert using another business ID is rejected by RLS.",
+    "status": "open",
+    "issue": "#2"
+  },
+  {
+    "id": "SEC-004",
+    "title": "Private file storage has no enforceable storage.objects policies",
+    "severity": "high",
+    "category": "Private File Access",
+    "evidence": [
+      {
+        "type": "file",
+        "reference": "supabase/migrations/001_initial_platform.sql:325-327",
+        "detail": "The migration only comments that private buckets and storage.objects membership policies must be added later."
+      }
+    ],
+    "affected": ["artist-files", "business-files", "files", "file_versions"],
+    "scenario": "If client upload/download functionality is enabled before storage policies are implemented, object access may not match project/tenant authorization.",
+    "impact": "Unreleased artist material or private business deliverables could be exposed to the wrong account or made public.",
+    "recommendation": "Create private buckets through migrations/config, add storage.objects policies tied to authorized project membership, and only issue short-lived authorized access to private objects.",
+    "validation": "Test own-project upload/download plus anonymous, wrong-role and cross-project denial against real Storage policies before enabling uploads.",
+    "status": "open",
+    "issue": "#2"
+  },
+  {
+    "id": "SEC-005",
+    "title": "Several public-schema data tables lack explicit RLS/exposure controls",
+    "severity": "high",
+    "category": "Data Exposure / Database Hardening",
+    "evidence": [
+      {
+        "type": "file",
+        "reference": "supabase/migrations/001_initial_platform.sql",
+        "detail": "contacts, leads, services, packages, availability, portfolio_projects, case_studies and notifications are created but are not all included in the RLS enablement block; the migration also does not define explicit Data API grants."
+      }
+    ],
+    "affected": ["contacts", "leads", "services", "packages", "availability", "portfolio_projects", "case_studies", "notifications"],
+    "scenario": "Database exposure depends on the Supabase project's Data API/default-grant configuration rather than the repository declaring a secure posture. On projects where public-schema tables have API grants, sensitive rows such as contacts/leads could be reachable without row policies.",
+    "impact": "Potential exposure or unintended mutation of lead/contact data and inconsistent behavior across Supabase project configurations.",
+    "recommendation": "Enable RLS explicitly on every exposed public-schema table, define intentional policies, and use explicit least-privilege grants so the migration is secure independent of dashboard defaults.",
+    "validation": "Run permission tests as anon, authenticated client, wrong tenant and admin roles; verify PII/admin-only tables deny non-admin access and published content is the only anonymous data exposed.",
+    "status": "open",
+    "issue": "#2"
+  },
+  {
+    "id": "SEC-006",
+    "title": "Dependencies are unpinned and no lockfile is committed",
+    "severity": "medium",
+    "category": "Supply Chain / Reproducibility",
+    "evidence": [
+      {
+        "type": "file",
+        "reference": "package.json",
+        "detail": "All runtime and development dependencies use latest and the imported scaffold contains no npm/pnpm/yarn lockfile."
+      }
+    ],
+    "affected": ["package.json", "CI", "production builds"],
+    "scenario": "Two installs at different times can resolve different framework or dependency versions, including breaking/security-sensitive changes, without a Git diff showing the resolved change.",
+    "impact": "Builds are not reproducible and dependency review cannot reliably identify the exact production graph.",
+    "recommendation": "Resolve supported package versions intentionally, commit a lockfile generated by the selected package manager, then run dependency review/audit against that exact graph.",
+    "validation": "A clean frozen/ci install succeeds from the lockfile and CI rejects dependency drift or high-severity production advisories.",
+    "status": "open",
+    "issue": "#2"
+  }
+]

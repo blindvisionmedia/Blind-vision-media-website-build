@@ -1,0 +1,4 @@
+import Link from 'next/link';
+import { Nav, Footer } from '@/components/Nav';
+import { demoAccounts } from '@/lib/auth';
+export default function Login(){return <><Nav/><main className="page"><section className="pageTitle"><p className="kicker">CENTRAL LOGIN</p><h1>ONE LOGIN. ROLE-BASED ACCESS.</h1><p>Email, password and reset flow are ready to connect to Supabase Auth. Demo routing links are included for local testing.</p></section><section className="contentGrid"><article className="contentPanel" style={{gridColumn:'1 / span 2'}}><form className="form"><input placeholder="Email"/><input placeholder="Password" type="password"/><button className="btn" type="button">Sign in</button><Link href="#">Reset password</Link></form></article><article className="contentPanel"><h3>Demo routes</h3>{demoAccounts.map(a=><p key={a.role}><Link href={a.path}>{a.role.toUpperCase()} → {a.path}</Link></p>)}</article></section></main><Footer/></>}

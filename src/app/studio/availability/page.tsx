@@ -1,0 +1,2 @@
+import { PublicPage, Panels, BVForm } from '@/components/PageBlocks';
+export default function Page(){return <PublicPage title='STUDIO AVAILABILITY' kicker='CALENDAR READY' text='Admin-controlled availability states prepared for future calendar integration.'><Panels items={[{title:'Available',body:'Open booking times displayed to clients.'},{title:'Limited',body:'Short windows or restricted service availability.'},{title:'Booked / Unavailable',body:'Protected blocks that cannot be booked from the public flow.'}]}/></PublicPage>}
