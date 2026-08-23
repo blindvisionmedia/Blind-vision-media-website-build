@@ -31,3 +31,5 @@ jobs:
           git add package-lock.json
           git commit -m "chore: add npm lockfile"
           git push origin HEAD:feat/4-public-site-scaffold
+
+# Bootstrap-only workflow. Remove after the lockfile is committed.
