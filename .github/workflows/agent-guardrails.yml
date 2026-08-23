@@ -1,0 +1,49 @@
+name: Agent Guardrails
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  guardrails:
+    name: Repository guardrails
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Scan for high-confidence secret patterns
+        run: node .agent-system/scripts/scan-secrets.mjs .
+
+      - name: Validate structured agent findings
+        run: node .agent-system/scripts/validate-findings.mjs reports
+
+      - name: Check package lock consistency when Node app exists
+        shell: bash
+        run: |
+          if [[ -f package.json ]]; then
+            if [[ ! -f package-lock.json && ! -f pnpm-lock.yaml && ! -f yarn.lock ]]; then
+              echo "A Node project exists but no recognized lockfile is committed."
+              exit 1
+            fi
+          fi
+
+      - name: Run npm audit when npm lockfile exists
+        shell: bash
+        run: |
+          if [[ -f package-lock.json ]]; then
+            npm audit --omit=dev --audit-level=high
+          else
+            echo "No package-lock.json yet; skipping npm audit."
+          fi
