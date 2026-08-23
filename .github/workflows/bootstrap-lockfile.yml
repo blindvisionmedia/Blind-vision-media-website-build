@@ -1,0 +1,33 @@
+name: Bootstrap package lock
+
+on:
+  push:
+    branches:
+      - feat/4-public-site-scaffold
+
+permissions:
+  contents: write
+
+jobs:
+  lockfile:
+    if: ${{ hashFiles('package-lock.json') == '' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/4-public-site-scaffold
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: package.json
+      - name: Generate package-lock.json without running package scripts
+        run: npm install --package-lock-only --ignore-scripts
+      - name: Commit lockfile
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add package-lock.json
+          git commit -m "chore: add npm lockfile"
+          git push origin HEAD:feat/4-public-site-scaffold
