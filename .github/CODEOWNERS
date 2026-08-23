@@ -1,9 +1,0 @@
-# Default repository owner
-* @blindvisionmedia
-
-# Security-critical controls and policies
-/AGENTS.md @blindvisionmedia
-/SECURITY.md @blindvisionmedia
-/docs/SECURITY_BASELINE.md @blindvisionmedia
-/.agent-system/ @blindvisionmedia
-/.github/workflows/ @blindvisionmedia
