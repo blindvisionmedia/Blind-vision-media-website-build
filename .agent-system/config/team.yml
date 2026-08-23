@@ -1,0 +1,64 @@
+version: 1
+project: blind-vision-media
+
+principles:
+  - builder_is_not_sole_approver
+  - github_is_source_of_truth
+  - least_privilege
+  - evidence_before_claims
+  - human_gate_for_high_risk_actions
+  - deny_by_default_for_protected_resources
+
+roles:
+  orchestrator:
+    mode: coordinate_and_report
+    default_access: read
+  architecture:
+    mode: recommend_and_review
+    default_access: read
+    may_write_docs: true
+  research:
+    mode: research
+    default_access: read
+  full_stack_engineer:
+    mode: implement
+    default_access: scoped_write
+  brand_ux_director:
+    mode: review_and_recommend
+    default_access: read
+  security:
+    mode: independent_review
+    default_access: read
+  privacy:
+    mode: independent_review
+    default_access: read
+  integration_auditor:
+    mode: independent_review
+    default_access: read
+  qa:
+    mode: independent_review
+    default_access: read
+  code_review:
+    mode: independent_review
+    default_access: read
+  performance:
+    mode: review_and_measure
+    default_access: read
+  accessibility:
+    mode: review_and_verify
+    default_access: read
+  release_auditor:
+    mode: final_gate
+    default_access: read
+
+human_approval_required:
+  - production_deploy
+  - auth_model_change
+  - authorization_or_rls_change
+  - payment_configuration
+  - oauth_scope_expansion
+  - production_secret_rotation_or_creation
+  - destructive_database_change
+  - client_data_migration
+  - deletion_of_production_data
+  - admin_privilege_expansion
